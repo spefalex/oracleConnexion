@@ -1,0 +1,16 @@
+{
+  "name": "pepexe",
+  "version": "0.1.0",
+  "description": "Api rest Micka and LAZA with Oracle",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "oracledb": "^2.2.0"
+  }
+}
