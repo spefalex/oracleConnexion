@@ -51,7 +51,8 @@ function initialize() {
         // retourne une erreur
         return res.status(403).send({
           success: false,
-          message: "Aucun token fourni."
+          message: "veuillez vous connecter à nouveau",
+          code:403
         });
       }
     });
@@ -92,7 +93,7 @@ function initialize() {
       res.json(result);
     });
 
-    // inscription 
+    // inscription
     app.post("/inscription", async (req, res) => {
       autoIncrementUser().then(data => {
         bcrypt.hash(req.body.password, 12).then(function(hash) {
@@ -125,12 +126,53 @@ function initialize() {
     });
 
     app.post("/login", async (req, res) => {
-      res.json({ message: "bien login" });
+      let password = req.body.password;
+      verificationUsername(req.body.username).then(data => {
+        if (data === 1) {
+          const result = database
+            .simpleExecute(
+              "select password,username from utilisateurs where username = :username",
+              { username: req.body.username },
+              { autoCommit: true }
+            )
+            .then(user => {
+            
+              const payload = {
+                user: user.rows
+              };
+              
+              if (bcrypt.compareSync(password,user.rows[0].PASSWORD)) {
+      
+                var token = jwt.sign(payload, app.get("superSecret"), {
+                  expiresIn: 60 * 60 * 24
+                });
+     
+                res.json({
+                  message: "bien authentifié",
+                  code: "200",
+                  token: token,
+                  username: user.rows[0].username
+                });
+              } else {
+                res.json({ message: "Invalid information", code: "201" });
+              }
+            })
+            .catch(err => {
+              console.log("err", err);
+            });
+        } else {
+          res.json({ message: "Invalid information", code: "201" });
+        }
+      });
     });
 
     //routes avec token
     apiRoutes.get("/", function(req, res) {
       res.json({ message: "Bienvenue avec l'api securisé ;) " });
+    });
+
+    apiRoutes.post("/ajoutFournisseur", function(req, res) {
+      res.json({ message: "/ajoutFournisseur " });
     });
 
     app.post("/authenticate", function(req, res) {
