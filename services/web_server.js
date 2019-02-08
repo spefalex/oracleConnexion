@@ -59,6 +59,19 @@ function initialize() {
     // Combine les informations de journalisation de la demande et de la réponse
     app.use(morgan("combined"));
     app.use("/apiCem", apiRoutes);
+    app.all('/*', function(req, res, next) {
+      // CORS headers
+      res.header("Access-Control-Allow-Origin", "*"); 
+      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
+      if (req.method == 'OPTIONS') {
+        res.status(200).end();
+      } else {
+        next();
+      }
+    });
+
+
     app.get("/", async (req, res) => {
       const result = await database.simpleExecute(
         "select user, systimestamp from dual"
@@ -95,6 +108,7 @@ function initialize() {
 
     // inscription
     app.post("/inscription", async (req, res) => {
+      
       autoIncrementUser().then(data => {
         bcrypt.hash(req.body.password, 12).then(function(hash) {
           let password = hash;
