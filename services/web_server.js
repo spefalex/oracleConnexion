@@ -26,6 +26,9 @@ function initialize() {
     // routage du middleware pour vérifier un token
     apiRoutes.use(function(req, res, next) {
       // vérifier les paramètres d'en-tête ou d'URL ou publier des paramètres pour le token
+      res.header("Access-Control-Allow-Origin", "*"); 
+      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       var token =
         req.body.token || req.query.token || req.headers["x-access-token"];
 
@@ -63,14 +66,25 @@ function initialize() {
       // CORS headers
       res.header("Access-Control-Allow-Origin", "*"); 
       res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       if (req.method == 'OPTIONS') {
         res.status(200).end();
       } else {
         next();
       }
     });
-
+    app.use("/apiCem", apiRoutes,function(req, res, next) {
+      // CORS headers
+      res.header("Access-Control-Allow-Origin", "*"); 
+      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      if (req.method == 'OPTIONS') {
+        res.status(200).end();
+      } else {
+        next();
+      }
+    });
+   
 
     app.get("/", async (req, res) => {
       const result = await database.simpleExecute(
@@ -117,7 +131,15 @@ function initialize() {
         resolve(result.rows[0].NOMBRE);
       });
     }
-
+    function verificationProduits(produits) {
+      return new Promise(async function(resolve, reject) {
+        const result = await database.simpleExecute(
+          "select count(designation) as nombre from produits where designation = :designation",
+          { designation : produits }
+        );
+        resolve(result.rows[0].NOMBRE);
+      });
+    }
     app.get("/readUser", async (req, res) => {
       const result = await database.simpleExecute("select * from utilisateurs");
 
@@ -218,22 +240,46 @@ function initialize() {
 
       res.json(result);
     });
-
-    apiRoutes.get("/lireproduits", async function(req, res) {
-      const result = await database.simpleExecute("select * from produits");
+    apiRoutes.get("/lirecategorie", async function(req, res) {
+      const result = await database.simpleExecute("select * from categories");
 
       res.json(result);
     });
+    apiRoutes.get("/lireproduits", async function(req, res) {
+      const result = await database.simpleExecute("select * from produits");
+      res.json(result);
+    });
     
-    apiRoutes.post("/ajoutProduit", async (req, res) => {
+    app.post("/ajoutProduit", async (req, res) => {
+     
       autoIncrementProduits().then(data => {
+    
         const produits = {
-          id_commande: 'PROD' + data,
+          id_prod: 'PROD' + data,
           id_fourniseur: req.body.id_fourniseur,
           designation: req.body.designation,
           cout: req.body.cout,
-          id_categorie :req.body.id_categorie
+          id_categorie :req.body.id_categorie,
         };
+
+        verificationProduits(produits.designation).then(data => {
+          if (data === 1) {
+            res.json({code :201, message: "produits déjà utilisé" });
+          } else {
+            const result = database
+              .simpleExecute(
+                "insert into produits (id_prod,id_fourniseur,designation,cout,id_categorie) values (:id_prod,:id_fourniseur,:designation,:cout,:id_categorie)",
+                produits,
+                { autoCommit: true }
+              )
+              .catch(err => {
+                console.log("erreur", err);
+              });
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            res.json({ code :200 ,message: "bien inscri" });
+        
+          }
+        });
       });
     });
 
