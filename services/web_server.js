@@ -90,6 +90,24 @@ function initialize() {
         resolve(result.rows[0].ID + 1);
       });
     }
+
+    function autoIncrementCommande() {
+      return new Promise(async function(resolve, reject) {
+        const result = await database.simpleExecute(
+          "select count(ID_COMMANDE) as id from commande"
+        );
+        resolve(result.rows[0].ID + 1);
+      });
+    }
+
+    function autoIncrementProduits() {
+      return new Promise(async function(resolve, reject) {
+        const result = await database.simpleExecute(
+          "select count(ID_PROD) as id from produits"
+        );
+        resolve(result.rows[0].ID + 1);
+      });
+    }
     function verificationUsername(username) {
       return new Promise(async function(resolve, reject) {
         const result = await database.simpleExecute(
@@ -139,7 +157,7 @@ function initialize() {
                 var token = jwt.sign(payload, app.get("superSecret"), {
                   expiresIn: 60 * 60 * 24
                 });
-              res.json({ code :200 ,message: "bien inscri" , statusCompte: req.body.typecompte , token:token});
+              res.json({ code :200 ,message: "bien inscri" , statusCompte: req.body.typecompte , token:token , id_user : utilisateurs.id_user});
             }
           });
         });
@@ -152,7 +170,7 @@ function initialize() {
         if (data === 1) {
           const result = database
             .simpleExecute(
-              "select password,username from utilisateurs where username = :username",
+              "select password,username,id_user from utilisateurs where username = :username",
               { username: req.body.username },
               { autoCommit: true }
             )
@@ -172,7 +190,9 @@ function initialize() {
                   message: "bien authentifié",
                   code: "200",
                   token: token,
-                  username: user.rows[0].username
+                  username: user.rows[0].USERNAME,
+                  id_user : user.rows[0].ID_USER
+
                 });
               } else {
                 res.json({ message: "Invalid information", code: 201 });
@@ -192,7 +212,39 @@ function initialize() {
       res.json({ message: "Bienvenue avec l'api securisé ;) " });
     });
 
-    apiRoutes.post("/ajoutFournisseur", function(req, res) {
+    
+    apiRoutes.get("/lirecommande", async function(req, res) {
+      const result = await database.simpleExecute("select * from commande");
+
+      res.json(result);
+    });
+
+    apiRoutes.get("/lireproduits", async function(req, res) {
+      const result = await database.simpleExecute("select * from produits");
+
+      res.json(result);
+    });
+    
+    apiRoutes.post("/ajoutProduit", async (req, res) => {
+      autoIncrementProduits().then(data => {
+        const produits = {
+          id_commande: 'PROD' + data,
+          id_fourniseur: req.body.id_fourniseur,
+          designation: req.body.designation,
+          cout: req.body.cout,
+          id_categorie :req.body.id_categorie
+        };
+      });
+    });
+
+    apiRoutes.get("/lirecategories", async function(req, res) {
+      const result = await database.simpleExecute("select * from categories");
+
+      res.json(result);
+    });
+
+
+    apiRoutes.post("/ajoutFournisseur", async function(req, res) {
       res.json({ message: "/ajoutFournisseur " });
     });
 
