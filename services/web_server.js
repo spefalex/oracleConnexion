@@ -108,7 +108,6 @@ function initialize() {
 
     // inscription
     app.post("/inscription", async (req, res) => {
-      
       autoIncrementUser().then(data => {
         bcrypt.hash(req.body.password, 12).then(function(hash) {
           let password = hash;
@@ -116,23 +115,31 @@ function initialize() {
             username: req.body.username,
             password: password,
             email: req.body.email,
-            id_user: data
+            id_user: data,
+            status_compte:req.body.typecompte
           };
 
           verificationUsername(utilisateurs.username).then(data => {
             if (data === 1) {
-              res.json({ message: "username déjà utilisé" });
+              res.json({code :'201', message: "username déjà utilisé" });
             } else {
               const result = database
                 .simpleExecute(
-                  "insert into utilisateurs (username,email,password,id_user) values (:username,:email,:password,:id_user)",
+                  "insert into utilisateurs (username,email,password,id_user,status_compte) values (:username,:email,:password,:id_user,:status_compte)",
                   utilisateurs,
                   { autoCommit: true }
                 )
                 .catch(err => {
                   console.log("erreur", err);
                 });
-              res.json({ message: "bien inscri" });
+                
+                const payload = {
+                  user: result
+                };
+                var token = jwt.sign(payload, app.get("superSecret"), {
+                  expiresIn: 60 * 60 * 24
+                });
+              res.json({ code :'200',message: "bien inscri" , statusCompte: req.body.typecompte , token:token});
             }
           });
         });
