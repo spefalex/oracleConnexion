@@ -121,7 +121,7 @@ function initialize() {
 
           verificationUsername(utilisateurs.username).then(data => {
             if (data === 1) {
-              res.json({code :'201', message: "username déjà utilisé" });
+              res.json({code :201, message: "username déjà utilisé" });
             } else {
               const result = database
                 .simpleExecute(
@@ -139,7 +139,7 @@ function initialize() {
                 var token = jwt.sign(payload, app.get("superSecret"), {
                   expiresIn: 60 * 60 * 24
                 });
-              res.json({ code :'200',message: "bien inscri" , statusCompte: req.body.typecompte , token:token});
+              res.json({ code :200 ,message: "bien inscri" , statusCompte: req.body.typecompte , token:token});
             }
           });
         });
@@ -175,14 +175,14 @@ function initialize() {
                   username: user.rows[0].username
                 });
               } else {
-                res.json({ message: "Invalid information", code: "201" });
+                res.json({ message: "Invalid information", code: 201 });
               }
             })
             .catch(err => {
               console.log("err", err);
             });
         } else {
-          res.json({ message: "Invalid information", code: "201" });
+          res.json({ message: "Invalid information", code: 201 });
         }
       });
     });
