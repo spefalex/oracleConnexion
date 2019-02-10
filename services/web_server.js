@@ -39,6 +39,7 @@ function initialize() {
           if (err) {
             return res.json({
               success: false,
+              code : 201,
               message: "Échec de l'authentification du token."
             });
           } else {
@@ -210,7 +211,7 @@ function initialize() {
      
                 res.json({
                   message: "bien authentifié",
-                  code: "200",
+                  code: 200,
                   token: token,
                   username: user.rows[0].USERNAME,
                   id_user : user.rows[0].ID_USER,
@@ -232,7 +233,7 @@ function initialize() {
 
     //routes avec token
     apiRoutes.get("/", function(req, res) {
-      res.json({ message: "Bienvenue avec l'api securisé ;) " });
+      res.json({ message: "Bienvenue avec l'api securisé ;) ",code : 200 });
     });
 
     
