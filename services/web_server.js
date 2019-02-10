@@ -250,7 +250,7 @@ function initialize() {
       res.json(result);
     });
     
-    app.post("/ajoutProduit", async (req, res) => {
+    apiRoutes.post("/ajoutProduit", async (req, res) => {
      
       autoIncrementProduits().then(data => {
     
