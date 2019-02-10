@@ -236,12 +236,53 @@ function initialize() {
       res.json({ message: "Bienvenue avec l'api securisé ;) ",code : 200 });
     });
 
+
+    apiRoutes.put("/updateProd", async (req, res) => {
+      const produits = {
+        id_prod : req.body.id_prod,
+        designation :req.body.designation,
+        cout :req.body.cout,
+        id_categorie:req.body.id_categorie
+      };
+  
+      const result = database
+      .simpleExecute(
+        "update produits set designation = :designation ,cout = :cout, id_categorie = : id_categorie where id_prod = : id_prod",
+        produits,
+        { autoCommit: true }
+      )
+      .catch(err => {
+        console.log("erreur", err);
+      });
+      res.json({ message: "bien modifié",code : 200 });
+    });
+    
+    apiRoutes.put("/updateProd", async (req, res) => {
+      const produits = {
+        id_prod : req.body.id_prod,
+        designation :req.body.designation,
+        cout :req.body.cout,
+        id_categorie:req.body.id_categorie
+      };
+  
+      const result = database
+      .simpleExecute(
+        "update produits set designation = :designation ,cout = :cout, id_categorie = : id_categorie where id_prod = : id_prod",
+        produits,
+        { autoCommit: true }
+      )
+      .catch(err => {
+        console.log("erreur", err);
+      });
+      res.json({ message: "bien modifié",code : 200 });
+    });
     
     apiRoutes.get("/lirecommande", async function(req, res) {
       const result = await database.simpleExecute("select * from commande");
 
       res.json(result);
     });
+
     apiRoutes.get("/lirecategorie", async function(req, res) {
       const result = await database.simpleExecute("select * from categories");
 
