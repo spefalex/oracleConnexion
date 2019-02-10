@@ -247,11 +247,32 @@ function initialize() {
 
       res.json(result);
     });
+
+  
     apiRoutes.get("/lireproduits", async function(req, res) {
-      const result = await database.simpleExecute("select * from produits");
+      const result = await database.simpleExecute("select p.id_prod,u.username,p.designation as nom_produit,p.cout,c.designation_categorie as type_categorie from produits p join categories c on p.id_categorie = c.id_categorie join utilisateurs u on u.id_user = p.id_fourniseur");
       res.json(result);
     });
     
+
+    function produitParFourniseur(id_fourniseur) {
+      return new Promise(async function(resolve, reject) {
+        const result = await database.simpleExecute(
+          "select p.id_prod,u.username,p.designation as nom_produit,p.cout,c.designation_categorie as type_categorie from produits p join categories c on p.id_categorie = c.id_categorie join utilisateurs u on u.id_user = p.id_fourniseur where p.id_fourniseur = :id_fourniseur",
+          { id_fourniseur: id_fourniseur }
+        );
+        resolve(result.rows);
+      });
+    }
+
+    apiRoutes.get("/lireproduitsByUser",function(req, res) {
+      produitParFourniseur(req.query.id_user).then(data=>{
+        res.json(data);
+      })
+
+    });
+    
+
     apiRoutes.post("/ajoutProduit", async (req, res) => {
      
       autoIncrementProduits().then(data => {
