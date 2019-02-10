@@ -192,7 +192,7 @@ function initialize() {
         if (data === 1) {
           const result = database
             .simpleExecute(
-              "select password,username,id_user from utilisateurs where username = :username",
+              "select password,username,id_user,status_compte from utilisateurs where username = :username",
               { username: req.body.username },
               { autoCommit: true }
             )
@@ -213,7 +213,8 @@ function initialize() {
                   code: "200",
                   token: token,
                   username: user.rows[0].USERNAME,
-                  id_user : user.rows[0].ID_USER
+                  id_user : user.rows[0].ID_USER,
+                  status_compte : user.rows[0].STATUS_COMPTE
 
                 });
               } else {
