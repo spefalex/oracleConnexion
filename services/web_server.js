@@ -283,6 +283,16 @@ function initialize() {
       res.json(result);
     });
 
+      
+    app.get("/lireProduit", async function(req, res) {
+      let id =  req.query.idProd;
+      const result = await database.simpleExecute
+      ("select * from produits where id_prod = :id_prod", {id_prod: id})
+     
+     
+      res.json(result);
+    });
+
     apiRoutes.get("/lirecategorie", async function(req, res) {
       const result = await database.simpleExecute("select * from categories");
 
