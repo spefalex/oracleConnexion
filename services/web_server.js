@@ -146,6 +146,36 @@ function initialize() {
 
       res.json(result);
     });
+    // commmande
+    app.post("/AjoutCommande", async (req, res) => {
+      autoIncrementCommande().then(data => {
+        
+          const commande = {
+            id_commande :'BONCOM'+data,
+            id_responsable: req.body.id_responsable,
+            designation_commande: req.body.designation_commande,
+            date_commande: new Date(),
+            id_frs: req.body.id_frs,
+            status_commande: 'EN ATTENTE'
+          };
+
+        const result = database
+          .simpleExecute(
+            "insert into commande (id_commande,id_responsable,designation_commande,date_commande,id_frs,status_commande) values (:id_commande,:id_responsable,:designation_commande,:date_commande,:id_frs,:status_commande)",
+            commande,
+            { autoCommit: true }
+          )
+          .catch(err => {
+            console.log("erreur", err);
+          });
+          
+        
+        
+        res.json({ code :200 ,message: "bien inscri" });
+       
+      });
+    });
+
 
     // inscription
     app.post("/inscription", async (req, res) => {
