@@ -146,6 +146,11 @@ function initialize() {
 
       res.json(result);
     });
+    app.get("/lirecommande", async (req, res) => {
+      const result = await database.simpleExecute("select * from commande");
+
+      res.json(result.rows);
+    });
     // commmande
     app.post("/AjoutCommande", async (req, res) => {
       autoIncrementCommande().then(data => {
@@ -287,6 +292,60 @@ function initialize() {
       res.json({ message: "bien modifié",code : 200 });
     });
     
+
+    app.put("/updateCom", async (req, res) => {
+      const commande = {
+        id_commande : req.body.id_commande,
+        designation_commande :req.body.designation_commande,
+        id_frs :req.body.id_frs,
+      };
+
+      const result = database
+      .simpleExecute(
+        "update commande set id_commande = :id_commande ,designation_commande= : designation_commande, id_frs = : id_frs where id_commande = : id_commande",
+        commande,
+        { autoCommit: true }
+      )
+      .catch(err => {
+        console.log("erreur", err);
+      });
+      res.json({ message: "bien modifié",code : 200 });
+    });
+
+
+    app.post("/deleteCom", async (req, res) => {
+      const commande = {
+        id_commande : req.body.id_commande,
+      };
+      const result = database
+      .simpleExecute(
+        " delete from commande where id_commande = : id_commande",
+        commande,
+        { autoCommit: true }
+      )
+      .catch(err => {
+        console.log("erreur", err);
+      });
+      res.json({ message: "bien suprimmer",code : 200 });
+    });
+
+    app.post("/deleteProduit", async (req, res) => {
+      const produit = {
+        id_prod : req.body.id_prod,
+      };
+      const result = database
+      .simpleExecute(
+        " delete from produits where id_prod = : id_prod",
+        produit,
+        { autoCommit: true }
+      )
+      .catch(err => {
+        console.log("erreur", err);
+      });
+      res.json({ message: "bien suprimmer",code : 200 });
+    });
+
+
     apiRoutes.put("/updateProd", async (req, res) => {
       const produits = {
         id_prod : req.body.id_prod,
