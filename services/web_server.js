@@ -143,9 +143,14 @@ function initialize() {
     }
     app.get("/readUser", async (req, res) => {
       const result = await database.simpleExecute("select * from utilisateurs");
-
-      res.json(result);
+      res.json(result.rows);
     });
+
+    app.get("/readCommande", async (req, res) => {
+      const result = await database.simpleExecute("select * from commande");
+      res.json(result.rows);
+    });
+
     app.get("/lirecommande", async (req, res) => {
       const result = await database.simpleExecute("select * from commande");
 
@@ -329,6 +334,21 @@ function initialize() {
       res.json({ message: "bien suprimmer",code : 200 });
     });
 
+    app.post("/deleteUser", async (req, res) => {
+      const user = {
+        id_user : req.body.id_user,
+      };
+      const result = database
+      .simpleExecute(
+        " delete from utilisateurs where id_user = : id_user",
+        user,
+        { autoCommit: true }
+      )
+      .catch(err => {
+        console.log("erreur", err);
+      });
+      res.json({ message: "bien suprimmer",code : 200 });
+    });
     app.post("/deleteProduit", async (req, res) => {
       const produit = {
         id_prod : req.body.id_prod,
