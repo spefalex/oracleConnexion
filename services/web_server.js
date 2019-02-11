@@ -142,7 +142,7 @@ function initialize() {
       });
     }
     app.get("/readUser", async (req, res) => {
-      const result = await database.simpleExecute("select * from utilisateurs");
+      const result = await database.simpleExecute("select * from utilisateurs where status_compte= 'frs'");
       res.json(result.rows);
     });
 
