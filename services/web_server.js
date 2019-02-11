@@ -160,6 +160,14 @@ function initialize() {
       res.json(result.rows);
     });
 
+    app.get("/priceCommande", async (req, res) => {
+      let fr_id = req.query.fr_id;
+      const result = await database.simpleExecute
+      ("select SUM(cout_commande) as totalPrice from commande where fr_id= :fr_id", {fr_id: fr_id})
+    
+      res.json(result.rows);
+    });
+
     app.get("/lireprice", async (req, res) => {
       const result = await database.simpleExecute("select SUM(cout_commande) as totalPrice from commande");
 
