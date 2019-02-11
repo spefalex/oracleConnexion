@@ -147,7 +147,10 @@ function initialize() {
     });
 
     app.get("/readCommande", async (req, res) => {
-      const result = await database.simpleExecute("select * from commande");
+      let fr_id = req.query.fr_id;
+      const result = await database.simpleExecute
+      ("select * from commande where fr_id= :fr_id", {fr_id: fr_id})
+    
       res.json(result.rows);
     });
 
@@ -166,12 +169,14 @@ function initialize() {
             designation_commande: req.body.designation_commande,
             date_commande: new Date(),
             id_frs: req.body.id_frs,
+            fr_id : req.body.fr_id,
+            cout_commande : req.body.cout_commande,
             status_commande: 'EN ATTENTE'
           };
 
         const result = database
           .simpleExecute(
-            "insert into commande (id_commande,id_responsable,designation_commande,date_commande,id_frs,status_commande) values (:id_commande,:id_responsable,:designation_commande,:date_commande,:id_frs,:status_commande)",
+            "insert into commande (id_commande,id_responsable,designation_commande,date_commande,id_frs,status_commande,fr_id,cout_commande) values (:id_commande,:id_responsable,:designation_commande,:date_commande,:id_frs,:status_commande,:fr_id,:cout_commande)",
             commande,
             { autoCommit: true }
           )
@@ -317,6 +322,25 @@ function initialize() {
       res.json({ message: "bien modifié",code : 200 });
     });
 
+    app.put("/validateCom", async (req, res) => {
+      console.log('idcommnade',req.body.id_commande)
+      const commande = {
+        status_commande : 'OK',
+        id_commande : req.body.id_commande,
+ 
+      };
+
+      const result = database
+      .simpleExecute(
+        "update commande set status_commande = :status_commande  where id_commande = : id_commande",
+        commande,
+        { autoCommit: true }
+      )
+      .catch(err => {
+        console.log("erreur", err);
+      });
+      res.json({ message: "bien modifié",code : 200 });
+    });
 
     app.post("/deleteCom", async (req, res) => {
       const commande = {
@@ -410,7 +434,7 @@ function initialize() {
 
   
     apiRoutes.get("/lireproduits", async function(req, res) {
-      const result = await database.simpleExecute("select p.id_prod,u.username,p.designation as nom_produit,p.cout,c.designation_categorie as type_categorie from produits p join categories c on p.id_categorie = c.id_categorie join utilisateurs u on u.id_user = p.id_fourniseur");
+      const result = await database.simpleExecute("select p.id_prod,u.username,p.designation as nom_produit,p.cout,p.id_fourniseur as cle ,c.designation_categorie as type_categorie from produits p join categories c on p.id_categorie = c.id_categorie join utilisateurs u on u.id_user = p.id_fourniseur");
       res.json(result);
     });
     
