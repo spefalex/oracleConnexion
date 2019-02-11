@@ -159,6 +159,13 @@ function initialize() {
 
       res.json(result.rows);
     });
+
+    app.get("/lireprice", async (req, res) => {
+      const result = await database.simpleExecute("select SUM(cout_commande) as totalPrice from commande");
+
+      res.json(result.rows);
+    });
+
     // commmande
     app.post("/AjoutCommande", async (req, res) => {
       autoIncrementCommande().then(data => {
